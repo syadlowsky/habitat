@@ -41,7 +41,7 @@ else if (process.argv[2] == "local") {
 console.log("h@bitat running at", SITE_URL, "\nconnected to db", MONGO_URI);
 
 // instantiate the app and connect to the database
-var app = module.exports = express();
+var app = express.createServer();
   db = mongoose.connect(MONGO_URI);
 
 /* START UTILITY FUNCTIONS */
