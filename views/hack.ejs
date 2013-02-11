@@ -69,16 +69,19 @@
         <div class="blank square threecol"></div>
       <% } %>
     </div>
-    <div class="mid_container">
+    <div style="padding:10px">
+    	<% if (user && hack.owners.indexOf(user._id) >=0) { %>
+		<input type="submit" class="submit cardcol" value="edit" onClick="window.location.href += '/edit'"></a>
+		<% } %>
+
+		<h1 class="title">Comments</h1>
 	    <form action="/projects/<%=hack.hackid%>/comment" method="post">
          	<input class="form_input" type="text" name="postername" value="" placeholder="Your Name" required="">
                  <textarea class="form_input" placeholder="description" name="postercomment"rows="7" col="0" style="line-height: 18px;" required=""></textarea>
 	      <input type="submit" class="submit" value="Submit">
 	    </form>
-	</div>
-    <% console.log("INSIDE TEMPLATE:" + JSON.stringify(hack.comments)); %>
-    <br>
-    <h1 class="title">Comments</h1>
+	    <hr>
+	    <% console.log("INSIDE TEMPLATE:" + JSON.stringify(hack.comments)); %>    
     <% var keys = new Array(); %>
     <% for (var k in hack.comments) { %>
       <% keys.unshift(k); %>
@@ -92,9 +95,8 @@
         </div>
       <% } %>
     <% } %> 
-	<% if (user && hack.owners.indexOf(user._id) >=0) { %>
-		<input type="submit" class="submit cardcol" value="edit" onClick="window.location.href += '/edit'"></a>
-	<% } %>
+
+	</div>
     </div>
   <div class="grid column" id="links" >
     <% for (var i=0; i<16; i++) { %>
