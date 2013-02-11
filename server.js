@@ -2,6 +2,7 @@
 var express = require('express'),
   connect = require('connect'),
   ejs = require('ejs'),
+  engine = require('ejs-locals'),
   http = require('http'),
   mongoose = require('mongoose'),
   passport = require('passport'),
@@ -41,8 +42,8 @@ else if (process.argv[2] == "local") {
 console.log("h@bitat running at", SITE_URL, "\nconnected to db", MONGO_URI);
 
 // instantiate the app and connect to the database
-var app = express.createServer();
-  db = mongoose.connect(MONGO_URI);
+var app = express(),
+    db = mongoose.connect(MONGO_URI);
 
 /* START UTILITY FUNCTIONS */
 function errorCallback(err) {
@@ -89,6 +90,7 @@ function shuffle(arr) {
   return arr;
 }
 /* END UTILITY FUNCTIONS */
+app.engine('ejs', engine);
 
 // configure app and modules
 app.configure(function() {
