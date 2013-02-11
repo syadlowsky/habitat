@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "server.js",
   "dependencies": {
-    "express": "*",
+    "express": "3.x.x",
     "connect": "2.7.2",
     "ejs": "0.8.x",
     "ejs-locals": "*",
