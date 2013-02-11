@@ -41,7 +41,7 @@ else if (process.argv[2] == "local") {
 console.log(SITE_URL);
 
 // instantiate the app and connect to the database
-var app = module.exports = express.createServer(),
+var app = module.exports = express();
   db = mongoose.connect(MONGO_URI);
 
 /* START UTILITY FUNCTIONS */
@@ -287,7 +287,7 @@ app.get('/projects/:id', function(req, res) {
 		"hackid": req.params.id,
 	}, function(err, doc) {
 		var team = {};
-		
+
 		for (var i=0; i<doc.team.length; i++) {
 			if(doc.team[i]) {
 				team[doc.team[i]] = {
@@ -296,7 +296,7 @@ app.get('/projects/:id', function(req, res) {
 				};
 			}
 		}
-		
+
 		User.where('github.username').in(doc.team).exec(function(err, docs) {
 			for (var i=0; i<docs.length; i++) {
 				team[docs[i].github.username] = {
@@ -453,7 +453,7 @@ app.post('/projects/:id/comment', function(req,res) {
   console.log("WTF"+JSON.stringify(newComment));
   Hack.update({
     "hackid": req.params.id,
-  }, { $push: { comments: newComment } }, 
+  }, { $push: { comments: newComment } },
   function(err, doc, raw) {
     console.log("NOOO"+JSON.stringify(doc));
     console.log("RAW: " + raw);
