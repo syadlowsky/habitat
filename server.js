@@ -257,6 +257,7 @@ app.post('/users/:username', function(req, res) {
 });
 
 function project_filter(req, res, page, searchstr) {
+  page = page - 1;
   /* Return many objects that correspond to the given page and query. */
   var query = Hack.find({});
   if (searchstr.length > 0) {
@@ -271,8 +272,8 @@ function project_filter(req, res, page, searchstr) {
     query.or(constraints);
   }
 
-  //query.skip(page * 30);
-  //query.limit(30);
+  query.skip(page * 30);
+  query.limit(30);
 
   query.exec(function(err, docs) {
     res.render('hacks', {
@@ -284,11 +285,11 @@ function project_filter(req, res, page, searchstr) {
 };
 
 app.get('/projects', function(req, res) {
-  project_filter(req, res, 0, "");
+  project_filter(req, res, 1, "");
 });
 
-app.get('/projects/filter/:page/:query', function(req, res) {
-  project_filter(req, res, req.params.page, req.params.query);
+app.get('/projects/filter', function(req, res) {
+  project_filter(req, res, req.query.page || 1, req.query.q || "");
 });
 
 app.get('/projects/:id', function(req, res) {
