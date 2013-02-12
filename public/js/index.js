@@ -34,7 +34,7 @@ $(function() {
 	});
 	
 	$(".link").click(function() {
-		transition((($(this).attr('class').split(' ').indexOf('external') > -1) ? '' : '/') + $(this).attr('name'));
+		transition((($(this).attr('class').split(' ').indexOf('external') > -1) ? '' : '/') + $(this).attr('name') + ($(this).attr('name')=="login" ? "?loc="+window.location : ""));
 	});
 	
 	$(".form_input").focus(function() {

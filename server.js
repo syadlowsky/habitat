@@ -61,6 +61,7 @@ function ensureAuthenticated(failureUrl) {
   }
 }
 
+// TODO: check if this actually makes sense on all things. sometimes they aren't a url at allm, and don't need an http in front of them
 function forceAbsolute(url) {
   if (url && url.indexOf('://') < 0) {
     url = "http://" + url;
@@ -146,14 +147,23 @@ passport.use(
   }
 ));
 
-app.get('/login', passport.authenticate('github'));
+app.get('/login', function(req, res, next) {
+  req.session.redirect_loc = req.query.loc;
+  passport.authenticate('github', function(err, user, info) {
+    if (err) { return res.redirect("/"); }
+    if (!user) { return res.redirect("/"); }
+    req.logIn(user, function(err) {
+      return res.redirect(req.session.redirect_loc);;
+    });
+  })(req, res, next);
+});
 
 app.get('/auth/github/callback',
   passport.authenticate('github', {
     failureRedirect: '/', //add failure page
   }),
   function(req, res) {
-    res.redirect('/users/me');
+    res.redirect(req.session.redirect_loc || '/users/me');
   }
 );
 /* END AUTHENTICATION FUNCTIONS */
@@ -217,7 +227,6 @@ app.get('/users/:username', function(req, res) {
 
 // need to be able to edit profile page
 app.post('/users/:username', function(req, res) {
-  console.log("updating");
   if (req.params.username == "me") {
     var username = req.user.github.username;
   } else {
@@ -226,13 +235,11 @@ app.post('/users/:username', function(req, res) {
       res.redirect("/users/"+req.params.username);
     }
   }
-  console.log(username);
     User.findOne({
       "github.username": username
     }, function(err, user) {
-      console.log("found the user: "+user);
       if (err) {
-        console.log(err);
+        console.log("Ran into error: "+err);
         res.redirect("/users/me");
       } else {
         user.info.name = req.body.user.name || user.info.name;
@@ -241,8 +248,6 @@ app.post('/users/:username', function(req, res) {
         user.save(function(e) {
           if (e) {
             console.log("Ran into error: "+e);
-          } else {
-            console.log("Saved.");
           }
         });
       }
@@ -306,7 +311,6 @@ app.get('/projects/:id', function(req, res) {
 					avatarUrl: docs[i].github.avatarUrl,
 				};
 			}
-      console.log("LINE"+JSON.stringify(doc));
 			res.render('hack', {
 				title: doc.title,
 				user: req.user,
@@ -341,15 +345,12 @@ app.get('/projects/:id/edit', ensureAuthenticated('/login'), function(req, res) 
 });
 
 app.post('/projects/:id', ensureAuthenticated('/login'), function(req, res) {
-  console.log(req.body);
   Hack.findOne({
     "hackid": req.params.id,
   }, function(err, doc) {
     if (doc.owners.indexOf(req.user._id) < 0) {
       res.redirect('/projects/'+req.params.id);
     } else {
-      console.log("Goodbye"+JSON.stringify(req.body));
-
       doc.title = req.body.title;
       doc.source = forceAbsolute(req.body.source);
       doc.demo = forceAbsolute(req.body.demo);
