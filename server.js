@@ -272,12 +272,14 @@ function project_filter(req, res, page, searchstr) {
     query.or(constraints);
   }
 
-  query.skip(page * 30);
-  query.limit(30);
+  query.skip(page * 24);
+  query.limit(24);
 
   query.exec(function(err, docs) {
     res.render('hacks', {
       title: 'Hacks',
+      lastPage: docs.length < 24,
+      page: page+1,
       user: req.user,
       hacks: shuffle(docs),
     });
