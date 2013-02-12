@@ -82,12 +82,10 @@
 	      <input type="submit" class="submit" value="Submit">
 	    </form>
 	    <hr>
-	    <% console.log("INSIDE TEMPLATE:" + JSON.stringify(hack.comments)); %>    
     <% var keys = new Array(); %>
     <% for (var k in hack.comments) { %>
       <% keys.unshift(k); %>
     <% } %>
-    <% console.log("KEYS: " + JSON.stringify(keys)); %>
     <% for (var c = keys.length, n=0; n<c; n++) { %>
       <% if (hack.comments[keys[n]] .poster != undefined) { %>
         <div class="commentDiv">

@@ -17,7 +17,7 @@ exports.EventSchema = new Schema({
 
 exports.HackSchema = new Schema({
 	title: {type: String, required: true},
-	owners: [Schema.ObjectId],
+	owners: [Schema.Types.Mixed],
 	team: [String],
 	source: String,
 	demo: String,

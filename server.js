@@ -54,10 +54,12 @@ function errorCallback(err) {
 
 function ensureAuthenticated(failureUrl) {
   return function(req, res, next) {
-    if (req.isAuthenticated())
+    req.session.redirect_loc = req.url;
+    if (req.isAuthenticated()) {
       next();
-    else
+    } else {
       res.redirect(failureUrl);
+    }
   }
 }
 
@@ -353,14 +355,28 @@ app.post('/projects/:id', ensureAuthenticated('/login'), function(req, res) {
     } else {
       doc.title = req.body.title;
       doc.source = forceAbsolute(req.body.source);
-      doc.demo = forceAbsolute(req.body.demo);
-      doc.video = forceAbsolute(req.body.video);
-      doc.picture = forceAbsolute(req.body.picture);
-      doc.blurb = req.body.blurb;
-      doc.tags = req.body.tags.toLowerCase().split(',').map(stripSpaces);
-      doc.comments = req.body.comments;
-      doc.save(function(err, doc) {
-        res.redirect('/projects/'+doc.hackid);
+      doc.team = req.body.team.split(/[,\/ ]+/);
+      User.where('github.username').in(req.body.owners.split(/[,\/ ]+/)).exec(function(e, users) {
+        if (e || !users) {
+          console.log("Error occured: "+e);
+        } else {
+          doc.owners = users.map(function (user) {
+            return mongoose.Types.ObjectId(""+user._id);
+          });
+          doc.demo = forceAbsolute(req.body.demo);
+          doc.video = forceAbsolute(req.body.video);
+          doc.picture = forceAbsolute(req.body.picture);
+          doc.blurb = req.body.blurb;
+          doc.tags = req.body.tags.toLowerCase().split(',').map(stripSpaces);
+          doc.comments = req.body.comments;
+          doc.save(function(er, d) {
+            if (er) {
+              console.log(er);
+            } else {
+              res.redirect('/projects/'+doc.hackid);
+            }
+          });
+        }
       });
     }
   });
@@ -449,18 +465,13 @@ app.get('/', function(req, res) {
 });
 
 app.post('/projects/:id/comment', function(req,res) {
-  console.log("HELLO");
 
   var newComment = {poster: req.body.postername, comment: req.body.postercomment};
 
-  console.log("WTF"+JSON.stringify(newComment));
   Hack.update({
     "hackid": req.params.id,
   }, { $push: { comments: newComment } },
   function(err, doc, raw) {
-    console.log("NOOO"+JSON.stringify(doc));
-    console.log("RAW: " + raw);
-    console.log("ERR: " + err);
     res.redirect('/projects/'+req.params.id);
   });
 });
